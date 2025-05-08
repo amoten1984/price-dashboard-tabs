@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function TabLayout() {
   const [data, setData] = useState([]);
@@ -7,6 +7,10 @@ export default function TabLayout() {
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedCondition, setSelectedCondition] = useState(null);
   const [selectedStorage, setSelectedStorage] = useState(null);
+
+  const categoryRef = useRef(null);
+  const modelRef = useRef(null);
+  const variantRef = useRef(null);
 
   useEffect(() => {
     fetch(
@@ -60,12 +64,21 @@ export default function TabLayout() {
     );
   };
 
+  const handleScrollTo = (ref) => {
+    if (ref && ref.current) {
+      setTimeout(() => {
+        ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   return (
     <div className="px-4 py-6 sm:px-6 bg-gray-100 min-h-screen max-w-screen-md mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-center">
         📊 Price Lookup Dashboard
       </h1>
 
+      {/* Step 1: Brand */}
       <div className="mb-5">
         <p className="font-semibold">Step 1: Choose a Brand</p>
         <div className="flex flex-wrap gap-2 mt-2">
@@ -78,6 +91,7 @@ export default function TabLayout() {
                 setSelectedModel("");
                 setSelectedCondition(null);
                 setSelectedStorage(null);
+                handleScrollTo(categoryRef);
               }}
               className={`px-4 py-2 rounded w-full sm:w-auto ${
                 selectedBrand === brand
@@ -91,8 +105,9 @@ export default function TabLayout() {
         </div>
       </div>
 
+      {/* Step 2: Category */}
       {selectedBrand && (
-        <div className="mb-5">
+        <div className="mb-5" ref={categoryRef}>
           <p className="font-semibold">Step 2: Choose a Category</p>
           <div className="flex flex-wrap gap-2 mt-2">
             {categories.map((cat) => (
@@ -103,6 +118,7 @@ export default function TabLayout() {
                   setSelectedModel("");
                   setSelectedCondition(null);
                   setSelectedStorage(null);
+                  handleScrollTo(modelRef);
                 }}
                 className={`px-4 py-2 rounded w-full sm:w-auto ${
                   selectedCategory === cat
@@ -117,10 +133,11 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Step 3: Model */}
       {selectedCategory && (
-        <div className="mb-6">
+        <div className="mb-6" ref={modelRef}>
           <p className="font-semibold mb-2">Step 3: Choose a Model</p>
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {models.map((model) => {
               const priceList = data
                 .filter(
@@ -139,8 +156,9 @@ export default function TabLayout() {
                     setSelectedModel(model);
                     setSelectedCondition(null);
                     setSelectedStorage(null);
+                    handleScrollTo(variantRef);
                   }}
-                  className={`px-4 py-3 rounded min-w-[180px] w-full sm:w-auto text-left border ${
+                  className={`p-3 aspect-square rounded border w-full text-left ${
                     selectedModel === model
                       ? "bg-black text-white"
                       : "bg-white"
@@ -157,8 +175,12 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Step 4: Variants */}
       {selectedModel && (
-        <div className="bg-white rounded shadow p-4 mt-6">
+        <div
+          className="bg-white rounded shadow p-4 mt-6"
+          ref={variantRef}
+        >
           <h2 className="text-xl font-semibold">{selectedModel}</h2>
           <p className="text-blue-600 text-sm mt-1">
             SKU: {selectedModel.toUpperCase().replace(/\s+/g, "_")}{" "}
