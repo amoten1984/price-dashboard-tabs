@@ -43,16 +43,29 @@ export default function TabLayout() {
     price: item.Price,
   }));
 
-  const priceEntry = allVariants.find(v => v.condition === selectedCondition && v.storage === selectedStorage);
+  const priceEntry = allVariants.find(
+    (v) => v.condition === selectedCondition && v.storage === selectedStorage
+  );
 
   const isDisabled = (condition, storage) => {
-    return !allVariants.find(v => v.condition === condition && v.storage === storage);
+    return !allVariants.find(
+      (v) => v.condition === condition && v.storage === storage
+    );
   };
+
+  useEffect(() => {
+    // Auto select condition and storage if there's only one variant
+    if (allVariants.length === 1) {
+      setSelectedCondition(allVariants[0].condition);
+      setSelectedStorage(allVariants[0].storage);
+    }
+  }, [selectedModel]);
 
   return (
     <div className="p-4 bg-gray-100 min-h-screen">
       <h1 className="text-xl font-bold mb-4 flex items-center gap-2">📊 Price Lookup Dashboard (Tab View)</h1>
 
+      {/* Brand Selection */}
       <div className="mb-4">
         <p className="font-semibold text-base">Step 1: Choose a Brand</p>
         <div className="flex gap-2 flex-wrap mt-2">
@@ -76,6 +89,7 @@ export default function TabLayout() {
         </div>
       </div>
 
+      {/* Category Selection */}
       {selectedBrand && (
         <div className="mb-4">
           <p className="font-semibold text-base">Step 2: Choose a Category</p>
@@ -100,6 +114,7 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Model Selection */}
       {selectedCategory && (
         <div className="mb-4">
           <p className="font-semibold text-base mb-2">Step 3: Choose a Model</p>
@@ -113,7 +128,7 @@ export default function TabLayout() {
                       item.Category === selectedCategory &&
                       item.Model === model
                   )
-                  .map((item) => parseFloat(item.Price.replace(/[^\d.]/g, "")) || 0)
+                  .map((item) => parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0)
               );
 
               return (
@@ -140,6 +155,7 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Variant Options */}
       {selectedModel && (
         <div
           ref={variantRef}
@@ -155,6 +171,7 @@ export default function TabLayout() {
             {priceEntry ? priceEntry.price : <span className="text-lg">Select options</span>}
           </p>
 
+          {/* Conditions */}
           <div className="mt-4">
             <p className="font-medium mb-1">Condition:</p>
             <div className="flex gap-2 flex-wrap">
@@ -172,6 +189,7 @@ export default function TabLayout() {
             </div>
           </div>
 
+          {/* Storages */}
           <div className="mt-4">
             <p className="font-medium mb-1">Storage:</p>
             <div className="flex gap-2 flex-wrap">
