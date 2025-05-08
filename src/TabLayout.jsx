@@ -92,15 +92,24 @@ export default function TabLayout() {
   }, [selectedModel]);
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen text-gray-800">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2">
-        📊 Price Lookup Dashboard (Tab View)
-      </h1>
+    <div className="bg-[#f9fafb] min-h-screen px-4 sm:px-6 lg:px-8 py-6 text-gray-800">
+      {/* Header */}
+      <header className="mb-8">
+        <div className="flex items-center gap-3">
+          <div className="text-3xl">📈</div>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800 tracking-tight">
+            Price Lookup Dashboard
+          </h1>
+        </div>
+        <p className="mt-2 text-sm text-slate-500">
+          Quickly browse available models by brand and category.
+        </p>
+      </header>
 
       {/* Step 1: Brand */}
-      <div className="mb-4">
-        <p className="font-semibold text-lg">Step 1: Choose a Brand</p>
-        <div className="flex flex-wrap gap-2 mt-2">
+      <div className="mb-6">
+        <h2 className="text-lg font-medium text-slate-700 mb-2">Step 1: Choose a Brand</h2>
+        <div className="flex flex-wrap gap-3">
           {brands.map((brand) => (
             <button
               key={brand}
@@ -111,8 +120,10 @@ export default function TabLayout() {
                 setSelectedCondition(null);
                 setSelectedStorage(null);
               }}
-              className={`px-4 py-2 rounded text-sm font-medium ${
-                selectedBrand === brand ? "bg-blue-600 text-white" : "bg-gray-200"
+              className={`px-4 py-2 rounded-lg shadow-sm text-sm font-medium border transition ${
+                selectedBrand === brand
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
               }`}
             >
               {brand}
@@ -123,9 +134,9 @@ export default function TabLayout() {
 
       {/* Step 2: Category */}
       {selectedBrand && (
-        <div className="mb-4">
-          <p className="font-semibold text-lg">Step 2: Choose a Category</p>
-          <div className="flex flex-wrap gap-2 mt-2">
+        <div className="mb-6">
+          <h2 className="text-lg font-medium text-slate-700 mb-2">Step 2: Choose a Category</h2>
+          <div className="flex flex-wrap gap-3">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -135,10 +146,10 @@ export default function TabLayout() {
                   setSelectedCondition(null);
                   setSelectedStorage(null);
                 }}
-                className={`px-4 py-2 rounded text-sm font-medium ${
+                className={`px-4 py-2 rounded-lg shadow-sm text-sm font-medium border transition ${
                   selectedCategory === cat
                     ? "bg-green-600 text-white"
-                    : "bg-gray-200"
+                    : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
                 }`}
               >
                 {cat}
