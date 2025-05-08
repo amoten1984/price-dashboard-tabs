@@ -60,21 +60,15 @@ export default function TabLayout() {
     );
   };
 
-  const startingPrice = Math.min(
-    ...filteredByModel.map((item) =>
-      parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0
-    )
-  );
-
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
-        📊 Price Lookup Dashboard (Tab View)
+    <div className="px-4 py-6 sm:px-6 bg-gray-100 min-h-screen max-w-screen-md mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        📊 Price Lookup Dashboard
       </h1>
 
-      <div className="mb-4">
+      <div className="mb-5">
         <p className="font-semibold">Step 1: Choose a Brand</p>
-        <div className="flex gap-2 flex-wrap mt-2">
+        <div className="flex flex-wrap gap-2 mt-2">
           {brands.map((brand) => (
             <button
               key={brand}
@@ -85,7 +79,7 @@ export default function TabLayout() {
                 setSelectedCondition(null);
                 setSelectedStorage(null);
               }}
-              className={`px-3 py-1 rounded ${
+              className={`px-4 py-2 rounded w-full sm:w-auto ${
                 selectedBrand === brand
                   ? "bg-blue-600 text-white"
                   : "bg-gray-200"
@@ -98,9 +92,9 @@ export default function TabLayout() {
       </div>
 
       {selectedBrand && (
-        <div className="mb-4">
+        <div className="mb-5">
           <p className="font-semibold">Step 2: Choose a Category</p>
-          <div className="flex gap-2 flex-wrap mt-2">
+          <div className="flex flex-wrap gap-2 mt-2">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -110,7 +104,7 @@ export default function TabLayout() {
                   setSelectedCondition(null);
                   setSelectedStorage(null);
                 }}
-                className={`px-3 py-1 rounded ${
+                className={`px-4 py-2 rounded w-full sm:w-auto ${
                   selectedCategory === cat
                     ? "bg-green-600 text-white"
                     : "bg-gray-200"
@@ -124,46 +118,47 @@ export default function TabLayout() {
       )}
 
       {selectedCategory && (
-        <div className="mb-4">
-          <p className="font-semibold">Step 3: Choose a Model</p>
-          <div className="flex gap-2 flex-wrap mt-2">
-            {models.map((model) => (
-              <button
-                key={model}
-                onClick={() => {
-                  setSelectedModel(model);
-                  setSelectedCondition(null);
-                  setSelectedStorage(null);
-                }}
-                className={`px-3 py-1 rounded min-w-[180px] text-left ${
-                  selectedModel === model
-                    ? "bg-black text-white"
-                    : "bg-white border"
-                }`}
-              >
-                <div className="text-sm font-medium">{model}</div>
-                <div className="text-xs text-red-600">
-                  🔥 Starting from: ${Math.min(
-                    ...data
-                      .filter(
-                        (item) =>
-                          item.Brand === selectedBrand &&
-                          item.Category === selectedCategory &&
-                          item.Model === model
-                      )
-                      .map((item) =>
-                        parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0
-                      )
-                  )}
-                </div>
-              </button>
-            ))}
+        <div className="mb-6">
+          <p className="font-semibold mb-2">Step 3: Choose a Model</p>
+          <div className="flex flex-wrap gap-3">
+            {models.map((model) => {
+              const priceList = data
+                .filter(
+                  (item) =>
+                    item.Brand === selectedBrand &&
+                    item.Category === selectedCategory &&
+                    item.Model === model
+                )
+                .map((item) => parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0);
+              const minPrice = Math.min(...priceList);
+
+              return (
+                <button
+                  key={model}
+                  onClick={() => {
+                    setSelectedModel(model);
+                    setSelectedCondition(null);
+                    setSelectedStorage(null);
+                  }}
+                  className={`px-4 py-3 rounded min-w-[180px] w-full sm:w-auto text-left border ${
+                    selectedModel === model
+                      ? "bg-black text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  <div className="text-sm font-medium">{model}</div>
+                  <div className="text-xs text-red-600">
+                    🔥 Starting from: ${minPrice}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
       {selectedModel && (
-        <div className="bg-white rounded shadow p-4 max-w-md mt-4">
+        <div className="bg-white rounded shadow p-4 mt-6">
           <h2 className="text-xl font-semibold">{selectedModel}</h2>
           <p className="text-blue-600 text-sm mt-1">
             SKU: {selectedModel.toUpperCase().replace(/\s+/g, "_")}{" "}
@@ -171,17 +166,17 @@ export default function TabLayout() {
           </p>
 
           <p className="text-2xl font-bold mt-2">
-  {priceEntry ? priceEntry.price : <span className="text-lg">Select options</span>}
-</p>
+            {priceEntry ? priceEntry.price : <span className="text-lg">Select options</span>}
+          </p>
 
           <div className="mt-4">
             <p className="font-medium mb-1">Condition:</p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {availableConditions.map((cond) => (
                 <button
                   key={cond}
                   onClick={() => setSelectedCondition(cond)}
-                  className={`px-3 py-1 rounded border ${
+                  className={`px-3 py-1 rounded border w-full sm:w-auto ${
                     selectedCondition === cond
                       ? "bg-black text-white"
                       : "bg-white"
@@ -195,7 +190,7 @@ export default function TabLayout() {
 
           <div className="mt-4">
             <p className="font-medium mb-1">Storage:</p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {availableStorages.map((stor) => {
                 const disabled = selectedCondition && isDisabled(selectedCondition, stor);
                 const selected = stor === selectedStorage;
@@ -204,7 +199,7 @@ export default function TabLayout() {
                   <button
                     key={stor}
                     onClick={() => !disabled && setSelectedStorage(stor)}
-                    className={`px-3 py-1 rounded border ${
+                    className={`px-3 py-1 rounded border w-full sm:w-auto ${
                       selected
                         ? "bg-black text-white"
                         : disabled
