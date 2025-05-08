@@ -2,35 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Theme Adjustments */
+/* Dark Tech Theme */
 body {
-  @apply bg-neutral-900 text-white;
+  @apply bg-[#121212] text-white;
+}
+
+h1, h2, h3 {
+  @apply text-white font-semibold;
 }
 
 button {
   @apply rounded px-3 py-1 text-sm font-medium transition duration-150;
 }
 
-button.bg-black.text-white {
-  @apply bg-blue-600 hover:bg-blue-700;
+button.bg-blue-600 {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
 }
 
-button.bg-gray-200.text-black {
-  @apply bg-gray-700 text-white hover:bg-gray-600;
+button.bg-gray-700 {
+  @apply bg-gray-700 hover:bg-gray-600 text-white;
 }
 
 button:disabled {
-  @apply opacity-50 cursor-not-allowed;
+  @apply opacity-40 cursor-not-allowed;
 }
 
 .model-card {
-  @apply bg-neutral-800 text-white rounded-md shadow-md px-4 py-3 hover:shadow-lg transition-all;
+  @apply bg-[#1e1e1e] border border-neutral-700 text-white rounded-md shadow-sm px-4 py-3 hover:shadow-lg;
 }
 
 .selected {
-  @apply bg-blue-600 text-white;
+  @apply bg-gradient-to-r from-blue-700 to-blue-500 text-white;
 }
 
 .price-card {
-  @apply bg-neutral-800 text-white rounded-md p-6 shadow-md;
+  @apply bg-[#1e1e1e] text-white rounded-md p-6 shadow-md;
+}
+
+.tag {
+  @apply text-orange-400 font-semibold text-xs;
+}
+
+.price {
+  @apply text-green-400 text-2xl font-bold;
 }
