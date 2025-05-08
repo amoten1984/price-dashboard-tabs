@@ -1,94 +1,118 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import data from './data.json';
 
-export default function TabLayout() {
-  const [data, setData] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedModel, setSelectedModel] = useState("");
+const TabLayout = () => {
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
   const [selectedCondition, setSelectedCondition] = useState(null);
   const [selectedStorage, setSelectedStorage] = useState(null);
-
-  useEffect(() => {
-    fetch(
-      "https://opensheet.elk.sh/1jUdicX66G1c3J7KrntHgCc9bj07xu6Re4fVV8nw45GQ/Sheet1"
-    )
-      .then((res) => res.json())
-      .then((sheet) => {
-        const cleaned = sheet.filter((row) => row.Brand !== "INFO" && row.Price);
-        setData(cleaned);
-      });
-  }, []);
+  const [models, setModels] = useState([]);
 
   const brands = [...new Set(data.map((item) => item.Brand))];
-  const categories = [...new Set(data.filter(item => item.Brand === selectedBrand).map((item) => item.Category))];
-  const models = [
-    ...new Set(
-      data
-        .filter((item) => item.Brand === selectedBrand && item.Category === selectedCategory)
-        .map((item) => item.Model)
-    ),
-  ];
+  const categories = [...new Set(data.map((item) => item.Category))];
 
-  const filteredByModel = data.filter(
-    (item) =>
-      item.Brand === selectedBrand &&
-      item.Category === selectedCategory &&
-      item.Model === selectedModel
-  );
+  useEffect(() => {
+    if (selectedBrand && selectedCategory) {
+      const filtered = data.filter(
+        (item) =>
+          item.Brand === selectedBrand &&
+          item.Category === selectedCategory
+      );
+      const uniqueModels = [...new Set(filtered.map((item) => item.Model))];
+      const modelWithPrices = uniqueModels.map((model) => {
+        const modelItems = filtered.filter((item) => item.Model === model);
+        const prices = modelItems.map((item) =>
+          Number(item.Price.replace(/\$/g, ''))
+        );
+        return {
+          model,
+          minPrice: Math.min(...prices),
+        };
+      });
+      setModels(modelWithPrices);
+      setSelectedModel(null);
+      setSelectedCondition(null);
+      setSelectedStorage(null);
+    }
+  }, [selectedBrand, selectedCategory]);
 
-  const availableConditions = [
-    ...new Set(filteredByModel.map((item) => item.Condition)),
-  ];
-  const availableStorages = [
-    ...new Set(filteredByModel.map((item) => item.Storage)),
-  ];
-
-  const allVariants = filteredByModel.map((item) => ({
-    condition: item.Condition,
-    storage: item.Storage,
-    price: item.Price,
-  }));
-
-  const priceEntry = allVariants.find(
-    (v) =>
-      v.condition === selectedCondition && v.storage === selectedStorage
-  );
-
-  const isDisabled = (condition, storage) => {
-    return !allVariants.find(
-      (v) => v.condition === condition && v.storage === storage
+  const getModelVariants = () => {
+    if (!selectedModel) return [];
+    return data.filter(
+      (item) =>
+        item.Brand === selectedBrand &&
+        item.Category === selectedCategory &&
+        item.Model === selectedModel
     );
   };
 
-  const startingPrice = Math.min(
-    ...filteredByModel.map((item) =>
-      parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0
-    )
-  );
+  const modelVariants = getModelVariants();
+
+  const availableConditions = [
+    ...new Set(modelVariants.map((item) => item.Condition)),
+  ];
+
+  const availableStorage = [
+    ...new Set(modelVariants.map((item) => item.Storage)),
+  ];
+
+  const filteredVariant =
+    selectedModel && selectedCondition && selectedStorage
+      ? modelVariants.find(
+          (item) =>
+            item.Condition === selectedCondition &&
+            item.Storage === selectedStorage
+        )
+      : null;
+
+  const getUnavailableOptions = (type) => {
+    if (!selectedModel) return [];
+
+    if (type === 'Storage' && selectedCondition) {
+      return availableStorage.filter((storage) => {
+        return !modelVariants.find(
+          (v) =>
+            v.Condition === selectedCondition && v.Storage === storage
+        );
+      });
+    }
+
+    if (type === 'Condition' && selectedStorage) {
+      return availableConditions.filter((condition) => {
+        return !modelVariants.find(
+          (v) =>
+            v.Condition === condition && v.Storage === selectedStorage
+        );
+      });
+    }
+
+    return [];
+  };
+
+  const unavailableStorage = getUnavailableOptions('Storage');
+  const unavailableConditions = getUnavailableOptions('Condition');
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
-        📊 Price Lookup Dashboard (Tab View)
-      </h1>
+    <div className="bg-[#1e1e2f] min-h-screen p-4 text-white font-sans">
+      <h1 className="text-2xl font-bold mb-4">📊 Price Lookup Dashboard (Tab View)</h1>
 
+      {/* Step 1: Brand */}
       <div className="mb-4">
-        <p className="font-semibold">Step 1: Choose a Brand</p>
-        <div className="flex gap-2 flex-wrap mt-2">
+        <h2 className="font-semibold mb-2">Step 1: Choose a Brand</h2>
+        <div className="flex flex-wrap gap-2">
           {brands.map((brand) => (
             <button
               key={brand}
               onClick={() => {
                 setSelectedBrand(brand);
-                setSelectedCategory("");
-                setSelectedModel("");
-                setSelectedCondition(null);
-                setSelectedStorage(null);
+                setSelectedCategory(null);
+                setSelectedModel(null);
               }}
-              className={`px-3 py-1 rounded ${
+              className={`px-4 py-2 rounded ${
                 selectedBrand === brand
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200"
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600'
               }`}
             >
               {brand}
@@ -97,23 +121,22 @@ export default function TabLayout() {
         </div>
       </div>
 
+      {/* Step 2: Category */}
       {selectedBrand && (
         <div className="mb-4">
-          <p className="font-semibold">Step 2: Choose a Category</p>
-          <div className="flex gap-2 flex-wrap mt-2">
+          <h2 className="font-semibold mb-2">Step 2: Choose a Category</h2>
+          <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => {
                   setSelectedCategory(cat);
-                  setSelectedModel("");
-                  setSelectedCondition(null);
-                  setSelectedStorage(null);
+                  setSelectedModel(null);
                 }}
-                className={`px-3 py-1 rounded ${
+                className={`px-4 py-2 rounded ${
                   selectedCategory === cat
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200"
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-700 hover:bg-gray-600'
                 }`}
               >
                 {cat}
@@ -123,11 +146,12 @@ export default function TabLayout() {
         </div>
       )}
 
-      {selectedCategory && (
-        <div className="mb-4">
-          <p className="font-semibold">Step 3: Choose a Model</p>
-          <div className="flex gap-2 flex-wrap mt-2">
-            {models.map((model) => (
+      {/* Step 3: Model */}
+      {selectedBrand && selectedCategory && (
+        <div className="mb-6">
+          <h2 className="font-semibold mb-2">Step 3: Choose a Model</h2>
+          <div className="flex flex-wrap gap-3">
+            {models.map(({ model, minPrice }) => (
               <button
                 key={model}
                 onClick={() => {
@@ -135,26 +159,15 @@ export default function TabLayout() {
                   setSelectedCondition(null);
                   setSelectedStorage(null);
                 }}
-                className={`px-3 py-1 rounded min-w-[180px] text-left ${
+                className={`px-4 py-2 border rounded text-left ${
                   selectedModel === model
-                    ? "bg-black text-white"
-                    : "bg-white border"
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-gray-200'
                 }`}
               >
-                <div className="text-sm font-medium">{model}</div>
-                <div className="text-xs text-red-600">
-                  🔥 Starting from: ${Math.min(
-                    ...data
-                      .filter(
-                        (item) =>
-                          item.Brand === selectedBrand &&
-                          item.Category === selectedCategory &&
-                          item.Model === model
-                      )
-                      .map((item) =>
-                        parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0
-                      )
-                  )}
+                <div className="font-semibold">{model}</div>
+                <div className="text-sm text-red-600">
+                  🔥 Starting from: ${minPrice}
                 </div>
               </button>
             ))}
@@ -162,29 +175,32 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Variants */}
       {selectedModel && (
-        <div className="bg-white rounded shadow p-4 max-w-md mt-4">
-          <h2 className="text-xl font-semibold">{selectedModel}</h2>
-          <p className="text-blue-600 text-sm mt-1">
-            SKU: {selectedModel.toUpperCase().replace(/\s+/g, "_")}{" "}
-            <span className="text-green-600">| In Stock</span>
-          </p>
+        <div className="bg-white text-black p-4 rounded shadow max-w-md">
+          <h3 className="text-lg font-semibold mb-1">{selectedModel}</h3>
+          <div className="text-sm text-blue-600 mb-2">
+            SKU: {selectedModel.replace(/\s+/g, '_').toUpperCase()} |{' '}
+            <span className="text-green-600">In Stock</span>
+          </div>
+          <div className="text-2xl font-bold mb-4">
+            ${filteredVariant ? filteredVariant.Price.replace(/\$/g, '') : 'Select options'}
+          </div>
 
-          <p className="text-2xl font-bold mt-2">
-  {priceEntry ? priceEntry.price : <span className="text-lg">Select options</span>}
-</p>
-
-          <div className="mt-4">
-            <p className="font-medium mb-1">Condition:</p>
-            <div className="flex gap-2">
+          <div className="mb-3">
+            <h4 className="font-medium">Condition:</h4>
+            <div className="flex gap-2 mt-1 flex-wrap">
               {availableConditions.map((cond) => (
                 <button
                   key={cond}
                   onClick={() => setSelectedCondition(cond)}
-                  className={`px-3 py-1 rounded border ${
+                  disabled={unavailableConditions.includes(cond)}
+                  className={`px-4 py-1 rounded border ${
                     selectedCondition === cond
-                      ? "bg-black text-white"
-                      : "bg-white"
+                      ? 'bg-black text-white'
+                      : unavailableConditions.includes(cond)
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-white text-black hover:bg-gray-200'
                   }`}
                 >
                   {cond}
@@ -193,34 +209,31 @@ export default function TabLayout() {
             </div>
           </div>
 
-          <div className="mt-4">
-            <p className="font-medium mb-1">Storage:</p>
-            <div className="flex gap-2">
-              {availableStorages.map((stor) => {
-                const disabled = selectedCondition && isDisabled(selectedCondition, stor);
-                const selected = stor === selectedStorage;
-
-                return (
-                  <button
-                    key={stor}
-                    onClick={() => !disabled && setSelectedStorage(stor)}
-                    className={`px-3 py-1 rounded border ${
-                      selected
-                        ? "bg-black text-white"
-                        : disabled
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-white"
-                    }`}
-                    disabled={disabled}
-                  >
-                    {stor}
-                  </button>
-                );
-              })}
+          <div>
+            <h4 className="font-medium">Storage:</h4>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {availableStorage.map((stor) => (
+                <button
+                  key={stor}
+                  onClick={() => setSelectedStorage(stor)}
+                  disabled={unavailableStorage.includes(stor)}
+                  className={`px-4 py-1 rounded border ${
+                    selectedStorage === stor
+                      ? 'bg-black text-white'
+                      : unavailableStorage.includes(stor)
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-white text-black hover:bg-gray-200'
+                  }`}
+                >
+                  {stor}
+                </button>
+              ))}
             </div>
           </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default TabLayout;
