@@ -1,160 +1,113 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { fetchSheetData } from './utils';
 
 export default function TabLayout() {
   const [data, setData] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedModel, setSelectedModel] = useState("");
-  const [selectedCondition, setSelectedCondition] = useState(null);
-  const [selectedStorage, setSelectedStorage] = useState(null);
+  const [brand, setBrand] = useState(null);
+  const [category, setCategory] = useState(null);
+  const [model, setModel] = useState(null);
+  const [condition, setCondition] = useState(null);
+  const [storage, setStorage] = useState(null);
 
   useEffect(() => {
-    fetch(
-      "https://opensheet.elk.sh/1jUdicX66G1c3J7KrntHgCc9bj07xu6Re4fVV8nw45GQ/Sheet1"
-    )
-      .then((res) => res.json())
-      .then((sheet) => {
-        const cleaned = sheet.filter((row) => row.Brand !== "INFO" && row.Price);
-        setData(cleaned);
-      });
+    fetchSheetData().then(setData);
   }, []);
 
-  const brands = [...new Set(data.map((item) => item.Brand))];
-  const categories = [...new Set(data.filter(item => item.Brand === selectedBrand).map((item) => item.Category))];
-  const models = [
-    ...new Set(
-      data
-        .filter((item) => item.Brand === selectedBrand && item.Category === selectedCategory)
-        .map((item) => item.Model)
-    ),
-  ];
+  const brands = [...new Set(data.map(d => d.Brand))];
+  const categories = [...new Set(data.filter(d => d.Brand === brand).map(d => d.Category))];
+  const models = [...new Set(data.filter(d => d.Brand === brand && d.Category === category).map(d => d.Model))];
 
-  const filteredByModel = data.filter(
-    (item) =>
-      item.Brand === selectedBrand &&
-      item.Category === selectedCategory &&
-      item.Model === selectedModel
-  );
-
-  const availableConditions = [
-    ...new Set(filteredByModel.map((item) => item.Condition)),
-  ];
-  const availableStorages = [
-    ...new Set(filteredByModel.map((item) => item.Storage)),
-  ];
-
-  const allVariants = filteredByModel.map((item) => ({
-    condition: item.Condition,
-    storage: item.Storage,
-    price: item.Price,
-  }));
-
-  const priceEntry = allVariants.find(
-    (v) =>
-      v.condition === selectedCondition && v.storage === selectedStorage
-  );
-
-  const isDisabled = (condition, storage) => {
-    return !allVariants.find(
-      (v) => v.condition === condition && v.storage === storage
-    );
+  const getStartingPrice = (model) => {
+    const prices = data.filter(d => d.Model === model).map(d => parseFloat(d.Price.replace('$', '')));
+    return prices.length ? Math.min(...prices) : null;
   };
 
-  const startingPrice = Math.min(
-    ...filteredByModel.map((item) =>
-      parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0
-    )
+  const modelData = data.filter(
+    d => d.Brand === brand && d.Category === category && d.Model === model
+  );
+
+  const conditions = [...new Set(modelData.map(d => d.Condition))];
+  const storages = [...new Set(modelData.map(d => d.Storage))];
+
+  const currentPriceEntry = modelData.find(d => d.Condition === condition && d.Storage === storage);
+
+  const unavailableStorages = storages.filter(s =>
+    !modelData.some(d => d.Condition === condition && d.Storage === s)
+  );
+
+  const unavailableConditions = conditions.filter(c =>
+    !modelData.some(d => d.Condition === c && d.Storage === storage)
   );
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
-        📊 Price Lookup Dashboard (Tab View)
-      </h1>
+    <div className="min-h-screen bg-gray-950 text-white px-4 py-6">
+      <h1 className="text-2xl font-bold mb-6 text-center">📊 Price Lookup Dashboard (Tab View)</h1>
 
+      {/* Step 1 */}
       <div className="mb-4">
-        <p className="font-semibold">Step 1: Choose a Brand</p>
-        <div className="flex gap-2 flex-wrap mt-2">
-          {brands.map((brand) => (
+        <h2 className="text-lg font-semibold mb-2">Step 1: Choose a Brand</h2>
+        <div className="flex flex-wrap gap-2">
+          {brands.map(b => (
             <button
-              key={brand}
+              key={b}
               onClick={() => {
-                setSelectedBrand(brand);
-                setSelectedCategory("");
-                setSelectedModel("");
-                setSelectedCondition(null);
-                setSelectedStorage(null);
+                setBrand(b);
+                setCategory(null);
+                setModel(null);
+                setCondition(null);
+                setStorage(null);
               }}
-              className={`px-3 py-1 rounded ${
-                selectedBrand === brand
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded ${brand === b ? 'bg-blue-600 text-white' : 'bg-gray-800 hover:bg-gray-700'}`}
             >
-              {brand}
+              {b}
             </button>
           ))}
         </div>
       </div>
 
-      {selectedBrand && (
+      {/* Step 2 */}
+      {brand && (
         <div className="mb-4">
-          <p className="font-semibold">Step 2: Choose a Category</p>
-          <div className="flex gap-2 flex-wrap mt-2">
-            {categories.map((cat) => (
+          <h2 className="text-lg font-semibold mb-2">Step 2: Choose a Category</h2>
+          <div className="flex flex-wrap gap-2">
+            {categories.map(c => (
               <button
-                key={cat}
+                key={c}
                 onClick={() => {
-                  setSelectedCategory(cat);
-                  setSelectedModel("");
-                  setSelectedCondition(null);
-                  setSelectedStorage(null);
+                  setCategory(c);
+                  setModel(null);
+                  setCondition(null);
+                  setStorage(null);
                 }}
-                className={`px-3 py-1 rounded ${
-                  selectedCategory === cat
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded ${category === c ? 'bg-green-600 text-white' : 'bg-gray-800 hover:bg-gray-700'}`}
               >
-                {cat}
+                {c}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {selectedCategory && (
+      {/* Step 3 */}
+      {category && (
         <div className="mb-4">
-          <p className="font-semibold">Step 3: Choose a Model</p>
-          <div className="flex gap-2 flex-wrap mt-2">
-            {models.map((model) => (
+          <h2 className="text-lg font-semibold mb-2">Step 3: Choose a Model</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {models.map(m => (
               <button
-                key={model}
+                key={m}
                 onClick={() => {
-                  setSelectedModel(model);
-                  setSelectedCondition(null);
-                  setSelectedStorage(null);
+                  setModel(m);
+                  setCondition(null);
+                  setStorage(null);
                 }}
-                className={`px-3 py-1 rounded min-w-[180px] text-left ${
-                  selectedModel === model
-                    ? "bg-black text-white"
-                    : "bg-white border"
+                className={`text-left p-3 rounded border shadow ${
+                  model === m ? 'bg-white text-black' : 'bg-gray-800 hover:bg-gray-700'
                 }`}
               >
-                <div className="text-sm font-medium">{model}</div>
-                <div className="text-xs text-red-600">
-                  🔥 Starting from: ${Math.min(
-                    ...data
-                      .filter(
-                        (item) =>
-                          item.Brand === selectedBrand &&
-                          item.Category === selectedCategory &&
-                          item.Model === model
-                      )
-                      .map((item) =>
-                        parseFloat(item.Price?.replace(/[^\d.]/g, "")) || 0
-                      )
-                  )}
+                <div className="font-bold">{m}</div>
+                <div className="text-sm text-red-500 mt-1">
+                  🔥 Starting from: ${getStartingPrice(m)}
                 </div>
               </button>
             ))}
@@ -162,61 +115,52 @@ export default function TabLayout() {
         </div>
       )}
 
-      {selectedModel && (
-        <div className="bg-white rounded shadow p-4 max-w-md mt-4">
-          <h2 className="text-xl font-semibold">{selectedModel}</h2>
-          <p className="text-blue-600 text-sm mt-1">
-            SKU: {selectedModel.toUpperCase().replace(/\s+/g, "_")}{" "}
-            <span className="text-green-600">| In Stock</span>
+      {/* Selected Details */}
+      {model && (
+        <div className="mt-6 p-6 bg-gray-900 rounded shadow-md max-w-md">
+          <h3 className="text-xl font-semibold mb-2">{model}</h3>
+          <p className="text-sm text-blue-400 mb-4">
+            SKU: {model.replace(/\s+/g, '_').toUpperCase()} |{' '}
+            <span className="text-green-400">In Stock</span>
           </p>
 
-          <p className="text-2xl font-bold mt-2">
-  {priceEntry ? priceEntry.price : <span className="text-lg">Select options</span>}
-</p>
+          <p className="text-2xl font-bold mb-4">
+            {currentPriceEntry ? `$${currentPriceEntry.Price.replace('$', '')}` : <span className="text-red-400">Select options</span>}
+          </p>
 
-          <div className="mt-4">
-            <p className="font-medium mb-1">Condition:</p>
-            <div className="flex gap-2">
-              {availableConditions.map((cond) => (
+          <div className="mb-4">
+            <p className="mb-2 font-medium">Condition:</p>
+            <div className="flex gap-2 flex-wrap">
+              {conditions.map(c => (
                 <button
-                  key={cond}
-                  onClick={() => setSelectedCondition(cond)}
-                  className={`px-3 py-1 rounded border ${
-                    selectedCondition === cond
-                      ? "bg-black text-white"
-                      : "bg-white"
+                  key={c}
+                  onClick={() => setCondition(c)}
+                  className={`px-4 py-1 rounded ${
+                    condition === c ? 'bg-white text-black' : unavailableConditions.includes(c) ? 'bg-gray-600 text-gray-300 cursor-not-allowed' : 'bg-gray-700 hover:bg-gray-600'
                   }`}
+                  disabled={unavailableConditions.includes(c)}
                 >
-                  {cond}
+                  {c}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="mt-4">
-            <p className="font-medium mb-1">Storage:</p>
-            <div className="flex gap-2">
-              {availableStorages.map((stor) => {
-                const disabled = selectedCondition && isDisabled(selectedCondition, stor);
-                const selected = stor === selectedStorage;
-
-                return (
-                  <button
-                    key={stor}
-                    onClick={() => !disabled && setSelectedStorage(stor)}
-                    className={`px-3 py-1 rounded border ${
-                      selected
-                        ? "bg-black text-white"
-                        : disabled
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-white"
-                    }`}
-                    disabled={disabled}
-                  >
-                    {stor}
-                  </button>
-                );
-              })}
+          <div className="mb-2">
+            <p className="mb-2 font-medium">Storage:</p>
+            <div className="flex gap-2 flex-wrap">
+              {storages.map(s => (
+                <button
+                  key={s}
+                  onClick={() => setStorage(s)}
+                  className={`px-4 py-1 rounded ${
+                    storage === s ? 'bg-white text-black' : unavailableStorages.includes(s) ? 'bg-gray-600 text-gray-300 cursor-not-allowed' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                  disabled={unavailableStorages.includes(s)}
+                >
+                  {s}
+                </button>
+              ))}
             </div>
           </div>
         </div>

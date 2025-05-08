@@ -2,47 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark Tech Theme */
-body {
-  @apply bg-[#121212] text-white;
-}
-
-h1, h2, h3 {
-  @apply text-white font-semibold;
-}
-
-button {
-  @apply rounded px-3 py-1 text-sm font-medium transition duration-150;
-}
-
-button.bg-blue-600 {
-  @apply bg-blue-600 hover:bg-blue-700 text-white;
-}
-
-button.bg-gray-700 {
-  @apply bg-gray-700 hover:bg-gray-600 text-white;
-}
-
-button:disabled {
-  @apply opacity-40 cursor-not-allowed;
-}
-
-.model-card {
-  @apply bg-[#1e1e1e] border border-neutral-700 text-white rounded-md shadow-sm px-4 py-3 hover:shadow-lg;
-}
-
-.selected {
-  @apply bg-gradient-to-r from-blue-700 to-blue-500 text-white;
-}
-
-.price-card {
-  @apply bg-[#1e1e1e] text-white rounded-md p-6 shadow-md;
-}
-
-.tag {
-  @apply text-orange-400 font-semibold text-xs;
-}
-
-.price {
-  @apply text-green-400 text-2xl font-bold;
-}
+/* Remove any @apply custom rules that duplicate Tailwind classes */
