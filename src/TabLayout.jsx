@@ -160,33 +160,33 @@ export default function TabLayout() {
       )}
 
       {/* Step 3: Model */}
-      {selectedCategory && (
-        <div className="mb-4" ref={modelRef}>
-          <p className="font-semibold text-lg mb-2">Step 3: Choose a Model</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {models.map((model) => (
-              <button
-                key={model}
-                onClick={() => {
-                  setSelectedModel(model);
-                  setSelectedCondition(null);
-                  setSelectedStorage(null);
-                }}
-                className={`rounded-lg p-4 h-full text-left border transition shadow-sm ${
-                  selectedModel === model
-                    ? "bg-black text-white border-black"
-                    : "bg-white border-gray-300 text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                <div className="font-semibold text-base mb-1">{model}</div>
-                <div className="text-sm text-red-500">
-                  🔥 Starting from: ${startingPrice(model)}
-                </div>
-              </button>
-            ))}
+{selectedCategory && (
+  <div className="mb-8" ref={modelRef}>
+    <h2 className="text-lg font-medium text-slate-700 mb-4">Step 3: Choose a Model</h2>
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      {models.map((model) => (
+        <button
+          key={model}
+          onClick={() => {
+            setSelectedModel(model);
+            setSelectedCondition(null);
+            setSelectedStorage(null);
+          }}
+          className={`rounded-xl p-4 h-full text-left shadow-md border transition-all duration-200 ${
+            selectedModel === model
+              ? "bg-blue-600 text-white border-blue-600"
+              : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:shadow"
+          }`}
+        >
+          <div className="text-base font-semibold leading-tight">{model}</div>
+          <div className="mt-1 text-sm text-red-500 font-medium">
+            🔥 Starting from: ${startingPrice(model)}
           </div>
-        </div>
-      )}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
       {/* Selection Details */}
       {selectedModel && (
