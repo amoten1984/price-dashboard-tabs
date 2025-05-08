@@ -174,7 +174,7 @@ export default function TabLayout() {
           }}
           className={`rounded-xl p-4 h-full text-left shadow-md border transition-all duration-200 ${
             selectedModel === model
-              ? "bg-blue-600 text-white border-black-600"
+              ? "bg-neutral-900 text-white border-neutral-900"
               : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:shadow"
           }`}
         >
