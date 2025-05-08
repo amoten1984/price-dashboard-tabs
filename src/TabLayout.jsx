@@ -255,6 +255,7 @@ export default function TabLayout() {
         })}
       </div>
     </div>
-  </div>
-);
+    </div>
+  );
 }
+
