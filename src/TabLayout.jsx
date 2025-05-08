@@ -190,73 +190,71 @@ export default function TabLayout() {
 
       {/* Selection Details */}
       {selectedModel && (
-        <div
-          ref={detailRef}
-          className="bg-white rounded shadow p-4 max-w-md mt-6 mx-auto"
-        >
-          <h2 className="text-xl font-semibold">{selectedModel}</h2>
-          <p className="text-blue-600 text-sm mt-1">
-            SKU: {selectedModel.toUpperCase().replace(/\s+/g, "_")}{" "}
-            <span className="text-green-600">| In Stock</span>
-          </p>
+  <div
+    ref={detailRef}
+    className="bg-white rounded-xl shadow-lg p-6 max-w-md mt-6 mx-auto"
+  >
+    <h2 className="text-xl font-semibold text-gray-800">{selectedModel}</h2>
+    <p className="text-sm text-gray-500 mt-1">
+      SKU: <span className="text-gray-600 font-mono">{selectedModel.toUpperCase().replace(/\s+/g, "_")}</span>{" "}
+      <span className="text-green-600 font-semibold">| In Stock</span>
+    </p>
 
-          <p className="text-2xl font-bold mt-3">
-            {priceEntry ? (
-              priceEntry.price
-            ) : (
-              <span className="text-lg">Select options</span>
-            )}
-          </p>
-
-          {/* Condition */}
-          <div className="mt-4">
-            <p className="font-medium mb-1">Condition:</p>
-            <div className="flex gap-2 flex-wrap">
-              {availableConditions.map((cond) => (
-                <button
-                  key={cond}
-                  onClick={() => setSelectedCondition(cond)}
-                  className={`px-4 py-1 rounded border text-sm ${
-                    selectedCondition === cond
-                      ? "bg-black text-white"
-                      : "bg-white"
-                  }`}
-                >
-                  {cond}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Storage */}
-          <div className="mt-4">
-            <p className="font-medium mb-1">Storage:</p>
-            <div className="flex gap-2 flex-wrap">
-              {availableStorages.map((stor) => {
-                const disabled = selectedCondition && isDisabled(selectedCondition, stor);
-                const selected = stor === selectedStorage;
-
-                return (
-                  <button
-                    key={stor}
-                    onClick={() => !disabled && setSelectedStorage(stor)}
-                    className={`px-4 py-1 rounded border text-sm ${
-                      selected
-                        ? "bg-black text-white"
-                        : disabled
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-white"
-                    }`}
-                    disabled={disabled}
-                  >
-                    {stor}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+    {/* Price */}
+    <div className="mt-4 mb-6">
+      <p className="text-sm font-medium text-gray-600 mb-1">Current Price:</p>
+      <div className="text-3xl font-bold text-green-600 tracking-tight">
+        {priceEntry ? priceEntry.price : <span className="text-base text-gray-400">Select options</span>}
+      </div>
     </div>
-  );
-}
+
+    {/* Condition */}
+    <div className="mb-4">
+      <p className="font-medium text-sm text-gray-700 mb-1">Condition:</p>
+      <div className="flex flex-wrap gap-2">
+        {availableConditions.map((cond) => (
+          <button
+            key={cond}
+            onClick={() => setSelectedCondition(cond)}
+            className={`px-4 py-1.5 rounded-md text-sm border font-medium transition ${
+              selectedCondition === cond
+                ? "bg-neutral-900 text-white border-neutral-900"
+                : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            {cond}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Storage */}
+    <div>
+      <p className="font-medium text-sm text-gray-700 mb-1">Storage:</p>
+      <div className="flex flex-wrap gap-2">
+        {availableStorages.map((stor) => {
+          const disabled = selectedCondition && isDisabled(selectedCondition, stor);
+          const selected = stor === selectedStorage;
+
+          return (
+            <button
+              key={stor}
+              onClick={() => !disabled && setSelectedStorage(stor)}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium border transition ${
+                selected
+                  ? "bg-neutral-900 text-white border-neutral-900"
+                  : disabled
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300"
+                  : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
+              }`}
+              disabled={disabled}
+            >
+              {stor}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
+
