@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { fetchSheetData } from './utils';
 
 export default function TabLayout() {
   const [data, setData] = useState([]);
