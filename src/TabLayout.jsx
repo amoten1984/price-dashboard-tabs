@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Building2, Box, Smartphone, Wrench, HardDrive } from "lucide-react";
 
 export default function TabLayout() {
   const [data, setData] = useState([]);
@@ -11,9 +12,7 @@ export default function TabLayout() {
   const detailRef = useRef(null);
 
   useEffect(() => {
-    fetch(
-      "https://opensheet.elk.sh/1jUdicX66G1c3J7KrntHgCc9bj07xu6Re4fVV8nw45GQ/Sheet1"
-    )
+    fetch("https://opensheet.elk.sh/1jUdicX66G1c3J7KrntHgCc9bj07xu6Re4fVV8nw45GQ/Sheet1")
       .then((res) => res.json())
       .then((sheet) => {
         const cleaned = sheet.filter((row) => row.Brand !== "INFO" && row.Price);
@@ -23,16 +22,12 @@ export default function TabLayout() {
 
   const brands = [...new Set(data.map((item) => item.Brand))];
   const categories = [
-    ...new Set(
-      data.filter((item) => item.Brand === selectedBrand).map((item) => item.Category)
-    ),
+    ...new Set(data.filter((item) => item.Brand === selectedBrand).map((item) => item.Category)),
   ];
   const models = [
     ...new Set(
       data
-        .filter(
-          (item) => item.Brand === selectedBrand && item.Category === selectedCategory
-        )
+        .filter((item) => item.Brand === selectedBrand && item.Category === selectedCategory)
         .map((item) => item.Model)
     ),
   ];
@@ -58,8 +53,7 @@ export default function TabLayout() {
   }));
 
   const priceEntry = allVariants.find(
-    (v) =>
-      v.condition === selectedCondition && v.storage === selectedStorage
+    (v) => v.condition === selectedCondition && v.storage === selectedStorage
   );
 
   const isDisabled = (condition, storage) => {
@@ -94,19 +88,23 @@ export default function TabLayout() {
   }, [selectedModel]);
 
   return (
-    <div className="bg-[#f4f6f9] min-h-screen px-4 sm:px-6 lg:px-8 py-8 text-gray-900 font-sans">
-      <header className="mb-10">
-        <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-blue-900">Live Price Lookup</h1>
-          <p className="text-sm text-gray-600 mt-2">
-            Powered by Google Sheets – Real-time & Reliable
-          </p>
-        </div>
+    <div className="bg-gradient-to-b from-slate-50 to-slate-100 min-h-screen px-4 sm:px-6 lg:px-8 py-6 text-slate-800">
+      {/* Hero Section */}
+      <header className="mb-10 text-center">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-700 tracking-tight mb-2">
+          Live Product Pricing
+        </h1>
+        <p className="text-base sm:text-lg text-slate-600">
+          View and filter real-time prices — powered by Google Sheets.
+        </p>
       </header>
 
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-2">1. Choose Brand</h2>
-        <div className="flex flex-wrap gap-2">
+      {/* Step 1: Brand */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-slate-700 mb-3 flex items-center gap-2">
+          <Building2 className="w-5 h-5" /> Step 1: Choose a Brand
+        </h2>
+        <div className="flex flex-wrap gap-3">
           {brands.map((brand) => (
             <button
               key={brand}
@@ -117,8 +115,10 @@ export default function TabLayout() {
                 setSelectedCondition(null);
                 setSelectedStorage(null);
               }}
-              className={`px-4 py-2 rounded border shadow text-sm font-medium transition-all duration-200 ${
-                selectedBrand === brand ? "bg-blue-600 text-white" : "bg-white hover:bg-blue-100"
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition shadow-sm ${
+                selectedBrand === brand
+                  ? "bg-blue-700 text-white"
+                  : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
               }`}
             >
               {brand}
@@ -127,10 +127,13 @@ export default function TabLayout() {
         </div>
       </div>
 
+      {/* Step 2: Category */}
       {selectedBrand && (
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-2">2. Choose Category</h2>
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-slate-700 mb-3 flex items-center gap-2">
+            <Box className="w-5 h-5" /> Step 2: Choose a Category
+          </h2>
+          <div className="flex flex-wrap gap-3">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -140,8 +143,10 @@ export default function TabLayout() {
                   setSelectedCondition(null);
                   setSelectedStorage(null);
                 }}
-                className={`px-4 py-2 rounded border shadow text-sm font-medium transition-all duration-200 ${
-                  selectedCategory === cat ? "bg-green-600 text-white" : "bg-white hover:bg-green-100"
+                className={`px-4 py-2 rounded-lg text-sm font-medium border transition shadow-sm ${
+                  selectedCategory === cat
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
                 }`}
               >
                 {cat}
@@ -151,9 +156,12 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Step 3: Model */}
       {selectedCategory && (
-        <div className="mb-10" ref={modelRef}>
-          <h2 className="text-lg font-semibold mb-4">3. Choose Model</h2>
+        <div className="mb-8" ref={modelRef}>
+          <h2 className="text-xl font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <Smartphone className="w-5 h-5" /> Step 3: Choose a Model
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {models.map((model) => (
               <button
@@ -163,15 +171,15 @@ export default function TabLayout() {
                   setSelectedCondition(null);
                   setSelectedStorage(null);
                 }}
-                className={`p-4 rounded-xl shadow border transition text-left ${
+                className={`rounded-xl p-4 h-full text-left shadow-md border transition-all duration-200 ${
                   selectedModel === model
-                    ? "bg-blue-900 text-white border-blue-900"
-                    : "bg-white hover:shadow-md"
+                    ? "bg-slate-800 text-white border-slate-800"
+                    : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:shadow"
                 }`}
               >
-                <div className="text-base font-semibold">{model}</div>
-                <div className="text-sm text-red-500 mt-1">
-                  Starting from: ${startingPrice(model)}
+                <div className="text-base font-semibold leading-tight">{model}</div>
+                <div className="mt-1 text-sm text-red-500 font-medium">
+                  🔥 Starting from: ${startingPrice(model)}
                 </div>
               </button>
             ))}
@@ -179,34 +187,41 @@ export default function TabLayout() {
         </div>
       )}
 
+      {/* Selection Details */}
       {selectedModel && (
         <div
           ref={detailRef}
-          className="bg-white rounded-xl shadow p-6 max-w-xl mx-auto mt-6"
+          className="bg-white rounded-xl shadow-lg p-6 max-w-xl mt-6 mx-auto border border-slate-200"
         >
-          <h2 className="text-xl font-bold mb-2">{selectedModel}</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            SKU: {selectedModel.toUpperCase().replace(/\s+/g, "_")} | In Stock
+          <h2 className="text-2xl font-bold text-slate-800">{selectedModel}</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            SKU:{" "}
+            <span className="text-gray-600 font-mono">
+              {selectedModel.toUpperCase().replace(/\s+/g, "_")}
+            </span>{" "}
+            <span className="text-green-600 font-semibold">| In Stock</span>
           </p>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-600">Current Price:</h3>
-            <div className="text-3xl font-bold text-green-600">
+          <div className="mt-4 mb-6">
+            <p className="text-sm font-medium text-gray-600 mb-1">Current Price:</p>
+            <div className="text-3xl font-bold text-green-600 tracking-tight">
               {priceEntry ? priceEntry.price : <span className="text-base text-gray-400">Select options</span>}
             </div>
           </div>
 
           <div className="mb-4">
-            <p className="text-sm font-medium mb-1">Condition</p>
+            <p className="font-medium text-sm text-gray-700 mb-1 flex items-center gap-1">
+              <Wrench className="w-4 h-4" /> Condition:
+            </p>
             <div className="flex flex-wrap gap-2">
               {availableConditions.map((cond) => (
                 <button
                   key={cond}
                   onClick={() => setSelectedCondition(cond)}
-                  className={`px-3 py-1 rounded text-sm border font-medium transition ${
+                  className={`px-4 py-1.5 rounded-md text-sm border font-medium transition ${
                     selectedCondition === cond
-                      ? "bg-blue-900 text-white border-blue-900"
-                      : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                      ? "bg-slate-800 text-white border-slate-800"
+                      : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
                   }`}
                 >
                   {cond}
@@ -216,7 +231,9 @@ export default function TabLayout() {
           </div>
 
           <div>
-            <p className="text-sm font-medium mb-1">Storage</p>
+            <p className="font-medium text-sm text-gray-700 mb-1 flex items-center gap-1">
+              <HardDrive className="w-4 h-4" /> Storage:
+            </p>
             <div className="flex flex-wrap gap-2">
               {availableStorages.map((stor) => {
                 const disabled = selectedCondition && isDisabled(selectedCondition, stor);
@@ -226,12 +243,12 @@ export default function TabLayout() {
                   <button
                     key={stor}
                     onClick={() => !disabled && setSelectedStorage(stor)}
-                    className={`px-3 py-1 rounded text-sm font-medium border transition ${
+                    className={`px-4 py-1.5 rounded-md text-sm font-medium border transition ${
                       selected
-                        ? "bg-blue-900 text-white border-blue-900"
+                        ? "bg-slate-800 text-white border-slate-800"
                         : disabled
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300"
-                        : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                        : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
                     }`}
                     disabled={disabled}
                   >
