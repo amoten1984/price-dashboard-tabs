@@ -23,9 +23,7 @@ export default function TabLayout() {
 
   const brands = [...new Set(data.map((item) => item.Brand))];
   const categories = [
-    ...new Set(
-      data.filter((item) => item.Brand === selectedBrand).map((item) => item.Category)
-    ),
+    ...new Set(data.filter((item) => item.Brand === selectedBrand).map((item) => item.Category)),
   ];
   const models = [
     ...new Set(
@@ -42,8 +40,12 @@ export default function TabLayout() {
       item.Model === selectedModel
   );
 
-  const availableConditions = [...new Set(filteredByModel.map((item) => item.Condition))];
-  const availableStorages = [...new Set(filteredByModel.map((item) => item.Storage))];
+  const availableConditions = [
+    ...new Set(filteredByModel.map((item) => item.Condition).filter(Boolean)),
+  ];
+  const availableStorages = [
+    ...new Set(filteredByModel.map((item) => item.Storage)),
+  ];
 
   const allVariants = filteredByModel.map((item) => ({
     condition: item.Condition,
@@ -51,12 +53,19 @@ export default function TabLayout() {
     price: item.Price,
   }));
 
-  const priceEntry = allVariants.find(
-    (v) => v.condition === selectedCondition && v.storage === selectedStorage
-  );
+  const priceEntry = allVariants.find((v) => {
+    const conditionMatch =
+      v.condition === selectedCondition || (!v.condition && !selectedCondition);
+    const storageMatch = v.storage === selectedStorage;
+    return conditionMatch && storageMatch;
+  });
 
   const isDisabled = (condition, storage) => {
-    return !allVariants.find((v) => v.condition === condition && v.storage === storage);
+    return !allVariants.find(
+      (v) =>
+        (v.condition === condition || (!v.condition && !condition)) &&
+        v.storage === storage
+    );
   };
 
   const startingPrice = (model) => {
@@ -190,25 +199,15 @@ export default function TabLayout() {
             <div ref={detailRef} className="mt-8 bg-gray-50 rounded-xl p-6 shadow">
               <h5 className="text-xl font-semibold text-gray-800">{selectedModel}</h5>
               <p className="text-sm text-gray-500 mt-1">
-                SKU: <span className="font-mono text-gray-600">{selectedModel.toUpperCase().replace(/\s+/g, "_")}</span>
-                {selectedCondition && selectedStorage ? (
-                  priceEntry ? (
-                    <span className="text-green-600 font-semibold"> | In Stock</span>
-                  ) : (
-                    <span className="text-red-600 font-semibold"> | Out of Stock</span>
-                  )
-                ) : null}
+                SKU: <span className="font-mono text-gray-600">{selectedModel.toUpperCase().replace(/\s+/g, "_")}</span>{" "}
+                <span className={priceEntry ? "text-green-600" : "text-red-500"}>{priceEntry ? "| In Stock" : "| Out of Stock"}</span>
               </p>
 
               <div className="text-3xl font-bold mt-4">
-                {selectedCondition && selectedStorage ? (
-                  priceEntry ? (
-                    <span className="text-green-700">{priceEntry.price}</span>
-                  ) : (
-                    <span className="text-red-400 text-lg font-medium">Sold Out</span>
-                  )
+                {priceEntry ? (
+                  <span className="text-green-700">{priceEntry.price}</span>
                 ) : (
-                  <span className="text-gray-400 text-base">Select options</span>
+                  <span className="text-gray-400 text-lg">Sold Out</span>
                 )}
               </div>
 
@@ -237,7 +236,8 @@ export default function TabLayout() {
                 <p className="font-medium text-sm mb-1">Storage:</p>
                 <div className="flex flex-wrap gap-2">
                   {availableStorages.map((stor) => {
-                    const disabled = selectedCondition && isDisabled(selectedCondition, stor);
+                    const disabled =
+                      selectedCondition !== null && isDisabled(selectedCondition, stor);
                     const selected = stor === selectedStorage;
 
                     return (
