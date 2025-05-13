@@ -200,14 +200,28 @@ export default function TabLayout() {
               <h5 className="text-xl font-semibold text-gray-800">{selectedModel}</h5>
               <p className="text-sm text-gray-500 mt-1">
                 SKU: <span className="font-mono text-gray-600">{selectedModel.toUpperCase().replace(/\s+/g, "_")}</span>{" "}
-                <span className={priceEntry ? "text-green-600" : "text-red-500"}>{priceEntry ? "| In Stock" : "| Out of Stock"}</span>
+                <span className={
+                  selectedCondition && selectedStorage && !priceEntry
+                    ? "text-red-500"
+                    : priceEntry
+                    ? "text-green-600"
+                    : "text-gray-400"
+                }>
+                  {selectedCondition && selectedStorage && !priceEntry
+                    ? "| Out of Stock"
+                    : priceEntry
+                    ? "| In Stock"
+                    : ""}
+                </span>
               </p>
 
               <div className="text-3xl font-bold mt-4">
                 {priceEntry ? (
                   <span className="text-green-700">{priceEntry.price}</span>
                 ) : (
-                  <span className="text-gray-400 text-lg">Sold Out</span>
+                  selectedCondition && selectedStorage && (
+                    <span className="text-gray-400 text-lg">Sold Out</span>
+                  )
                 )}
               </div>
 
