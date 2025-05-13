@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Flame, Smartphone, Layers, PackageCheck } from "lucide-react";
 
 export default function TabLayout() {
   const [data, setData] = useState([]);
@@ -41,8 +40,12 @@ export default function TabLayout() {
       item.Model === selectedModel
   );
 
-  const availableConditions = [...new Set(filteredByModel.map((item) => item.Condition))];
-  const availableStorages = [...new Set(filteredByModel.map((item) => item.Storage))];
+  const availableConditions = [
+    ...new Set(filteredByModel.map((item) => item.Condition)),
+  ];
+  const availableStorages = [
+    ...new Set(filteredByModel.map((item) => item.Storage)),
+  ];
 
   const allVariants = filteredByModel.map((item) => ({
     condition: item.Condition,
@@ -51,7 +54,8 @@ export default function TabLayout() {
   }));
 
   const priceEntry = allVariants.find(
-    (v) => v.condition === selectedCondition && v.storage === selectedStorage
+    (v) =>
+      v.condition === selectedCondition && v.storage === selectedStorage
   );
 
   const isDisabled = (condition, storage) => {
@@ -86,162 +90,181 @@ export default function TabLayout() {
   }, [selectedModel]);
 
   return (
-    <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 text-gray-800 min-h-screen">
+    <div className="bg-gradient-to-b from-white to-slate-100 min-h-screen px-4 sm:px-6 lg:px-8 py-6 text-gray-800">
       {/* Hero Section */}
-      <section className="text-center py-14 px-4 sm:px-8">
-        <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Live Product Pricing</h1>
-        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-          Instantly share your latest pricing via Google Sheets. No code. Mobile optimized.
+      <section className="text-center py-12">
+        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+          Instantly Share Product Pricing
+        </h1>
+        <p className="text-lg text-gray-600 max-w-xl mx-auto">
+          A sleek, mobile-friendly live pricing dashboard connected to Google Sheets.
         </p>
-        <a href="#dashboard" className="inline-block mt-6 px-6 py-3 bg-black text-white rounded-lg text-sm font-medium shadow hover:bg-gray-800 transition">
-          View Live Demo
+        <a
+          href="#dashboard"
+          className="mt-6 inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow transition"
+        >
+          View Demo
         </a>
       </section>
 
-      {/* Dashboard */}
-      <div id="dashboard" className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 flex items-center gap-2">
-          <PackageCheck className="w-6 h-6 text-blue-500" /> Price Lookup Dashboard
-        </h2>
+      {/* Dashboard Section */}
+      <section id="dashboard" className="py-12">
+        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">Live Product Pricing</h2>
+        <p className="text-center text-gray-600 mb-8">
+          Instantly share your latest pricing via Google Sheets. No code. Mobile optimized.
+        </p>
 
-        {/* Step 1 */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-blue-600" /> Step 1: Choose a Brand
+        <div className="bg-white rounded-xl shadow-xl p-6 sm:p-8">
+          <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <span>📦</span> Price Lookup Dashboard
           </h3>
-          <div className="flex flex-wrap gap-2">
-            {brands.map((brand) => (
-              <button
-                key={brand}
-                onClick={() => {
-                  setSelectedBrand(brand);
-                  setSelectedCategory("");
-                  setSelectedModel("");
-                  setSelectedCondition(null);
-                  setSelectedStorage(null);
-                }}
-                className={`px-4 py-2 rounded-md border text-sm font-medium transition ${
-                  selectedBrand === brand ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {brand}
-              </button>
-            ))}
-          </div>
-        </div>
 
-        {/* Step 2 */}
-        {selectedBrand && (
+          {/* Step 1: Brand */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-green-600" /> Step 2: Choose a Category
-            </h3>
+            <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span>📱</span> Step 1: Choose a Brand
+            </h4>
             <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
+              {brands.map((brand) => (
                 <button
-                  key={cat}
+                  key={brand}
                   onClick={() => {
-                    setSelectedCategory(cat);
+                    setSelectedBrand(brand);
+                    setSelectedCategory("");
                     setSelectedModel("");
                     setSelectedCondition(null);
                     setSelectedStorage(null);
                   }}
-                  className={`px-4 py-2 rounded-md border text-sm font-medium transition ${
-                    selectedCategory === cat ? "bg-green-600 text-white" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border transition ${{
+                    true: "bg-blue-600 text-white",
+                    false: "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                  }[selectedBrand === brand]}`}
                 >
-                  {cat}
+                  {brand}
                 </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Step 3 */}
-        {selectedCategory && (
-          <div className="mb-8" ref={modelRef}>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Flame className="w-5 h-5 text-orange-500" /> Step 3: Choose a Model
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {models.map((model) => (
-                <button
-                  key={model}
-                  onClick={() => {
-                    setSelectedModel(model);
-                    setSelectedCondition(null);
-                    setSelectedStorage(null);
-                  }}
-                  className={`rounded-lg p-4 text-left border shadow-sm transition ${
-                    selectedModel === model ? "bg-black text-white border-black" : "bg-white text-gray-800 border-gray-200 hover:shadow-md"
-                  }`}
-                >
-                  <div className="font-semibold text-base">{model}</div>
-                  <div className="text-sm text-red-500">🔥 Starting from: ${startingPrice(model)}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Details */}
-        {selectedModel && (
-          <div ref={detailRef} className="bg-white p-6 rounded-xl shadow-lg max-w-xl mx-auto">
-            <h4 className="text-xl font-bold mb-1">{selectedModel}</h4>
-            <p className="text-sm text-gray-500 mb-4">
-              SKU: <span className="font-mono text-gray-600">{selectedModel.toUpperCase().replace(/\s+/g, "_")}</span> | <span className="text-green-600 font-medium">In Stock</span>
-            </p>
-            <div className="text-3xl font-extrabold text-green-600 mb-6">
-              {priceEntry ? priceEntry.price : <span className="text-base text-gray-400">Select options</span>}
-            </div>
-
-            {/* Condition */}
-            <div className="mb-4">
-              <p className="font-semibold text-sm text-gray-700 mb-2">Condition:</p>
+          {/* Step 2: Category */}
+          {selectedBrand && (
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                <span>📂</span> Step 2: Choose a Category
+              </h4>
               <div className="flex flex-wrap gap-2">
-                {availableConditions.map((cond) => (
+                {categories.map((cat) => (
                   <button
-                    key={cond}
-                    onClick={() => setSelectedCondition(cond)}
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium border transition ${
-                      selectedCondition === cond ? "bg-black text-white border-black" : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
-                    }`}
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setSelectedModel("");
+                      setSelectedCondition(null);
+                      setSelectedStorage(null);
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border transition ${{
+                      true: "bg-green-600 text-white",
+                      false: "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                    }[selectedCategory === cat]}`}
                   >
-                    {cond}
+                    {cat}
                   </button>
                 ))}
               </div>
             </div>
+          )}
 
-            {/* Storage */}
-            <div>
-              <p className="font-semibold text-sm text-gray-700 mb-2">Storage:</p>
-              <div className="flex flex-wrap gap-2">
-                {availableStorages.map((stor) => {
-                  const disabled = selectedCondition && isDisabled(selectedCondition, stor);
-                  const selected = stor === selectedStorage;
-                  return (
-                    <button
-                      key={stor}
-                      onClick={() => !disabled && setSelectedStorage(stor)}
-                      className={`px-4 py-1.5 rounded-md text-sm font-medium border transition ${
-                        selected
-                          ? "bg-black text-white border-black"
-                          : disabled
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300"
-                          : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
-                      }`}
-                      disabled={disabled}
-                    >
-                      {stor}
-                    </button>
-                  );
-                })}
+          {/* Step 3: Model */}
+          {selectedCategory && (
+            <div className="mb-6" ref={modelRef}>
+              <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>📋</span> Step 3: Choose a Model
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {models.map((model) => (
+                  <button
+                    key={model}
+                    onClick={() => {
+                      setSelectedModel(model);
+                      setSelectedCondition(null);
+                      setSelectedStorage(null);
+                    }}
+                    className={`rounded-lg p-4 text-left shadow border transition text-sm ${{
+                      true: "bg-black text-white border-black",
+                      false: "bg-white text-gray-900 border-gray-200 hover:bg-gray-50"
+                    }[selectedModel === model]}`}
+                  >
+                    <div className="font-semibold text-base">{model}</div>
+                    <div className="text-red-500 mt-1">
+                      🔥 Starting from: ${startingPrice(model)}
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+
+          {/* Selection Details */}
+          {selectedModel && (
+            <div ref={detailRef} className="mt-8 bg-gray-50 rounded-xl p-6 shadow">
+              <h5 className="text-xl font-semibold text-gray-800">{selectedModel}</h5>
+              <p className="text-sm text-gray-500 mt-1">
+                SKU: <span className="font-mono text-gray-600">{selectedModel.toUpperCase().replace(/\s+/g, "_")}</span> | <span className="text-green-600">In Stock</span>
+              </p>
+
+              <div className="text-3xl font-bold text-green-700 mt-4">
+                {priceEntry ? priceEntry.price : <span className="text-base text-gray-400">Select options</span>}
+              </div>
+
+              {/* Condition */}
+              <div className="mt-4">
+                <p className="font-medium text-sm mb-1">Condition:</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableConditions.map((cond) => (
+                    <button
+                      key={cond}
+                      onClick={() => setSelectedCondition(cond)}
+                      className={`px-4 py-1.5 rounded border text-sm font-medium transition ${{
+                        true: "bg-black text-white border-black",
+                        false: "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                      }[selectedCondition === cond]}`}
+                    >
+                      {cond}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Storage */}
+              <div className="mt-4">
+                <p className="font-medium text-sm mb-1">Storage:</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableStorages.map((stor) => {
+                    const disabled = selectedCondition && isDisabled(selectedCondition, stor);
+                    const selected = stor === selectedStorage;
+
+                    return (
+                      <button
+                        key={stor}
+                        onClick={() => !disabled && setSelectedStorage(stor)}
+                        disabled={disabled}
+                        className={`px-4 py-1.5 rounded border text-sm font-medium transition ${{
+                          true: "bg-black text-white border-black",
+                          false: disabled
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300"
+                            : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                        }[selected]}`}
+                      >
+                        {stor}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
